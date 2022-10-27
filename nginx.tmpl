@@ -1,0 +1,36 @@
+server {
+   listen 80 default_server;
+   listen [::]:80 default_server;
+
+   server_name #TODO: Domain here;
+
+   return 301 https://$host$request_uri;
+}
+
+
+server {
+   listen 443 ssl;
+   listen [::]:443 ssl;
+
+   root /usr/share/nginx/fonts;
+
+   server_name #TODO: Domain here;
+
+   
+   location ^~ /.well-known/acme-challenge/ {
+	auth_basic off;
+	auth_request off;
+	allow all;
+	root /usr/share/nginx/html;
+	try_files $uri =404;
+	break;
+   }
+   
+   location / {
+       autoindex on;
+       try_files $uri =404;
+   }
+
+   ssl_certificate /etc/nginx/certs/#TODO: Domain here/fullchain.pem;
+   ssl_certificate_key /etc/nginx/certs/#TODO: Domain here/key.pem;
+}
