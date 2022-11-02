@@ -14,7 +14,6 @@ for font in fonts:
         content = requests.get(cur_url)
         z = zipfile.ZipFile(io.BytesIO(content.content))
         z.extractall('/opt/fonts')
-        break
     except Exception as e:
         print(font['id'], e)
 print('Finish download of fonts')
