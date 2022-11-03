@@ -18,18 +18,18 @@ def __retrieve_characteristics(fonts_string):
 
 def __generate_replace_string(characteristics, url):
     blue_print = """
-    @font-face {
+    @font-face {{
         font-family: {family};
         font-style: {style};
-        font_weight: {weigth};
-        src: url('{url}/{name}-{version}-{subset}.eot);'
+        font_weight: {weight};
+        src: url('{url}/{name}-{version}-{subset}.eot');
         src: local(''),
-             url('{url}/{name}-{version}-{subset}.eot?#iefix) format('embedded-opentype'),'
-             url('{url}/{name}-{version}-{subset}.woff2) format('woff2'),'
-             url('{url}/{name}-{version}-{subset}.woff) format('woff'),'
-             url('{url}/{name}-{version}-{subset}.ttf) format('truetype'),'
-             url('{url}/{name}-{version}-{subset}.svg#{name_capitalized}) format('svg');'
-    }
+             url('{url}/{name}-{version}-{subset}.eot?#iefix') format('embedded-opentype'),
+             url('{url}/{name}-{version}-{subset}.woff2') format('woff2'),
+             url('{url}/{name}-{version}-{subset}.woff') format('woff'),
+             url('{url}/{name}-{version}-{subset}.ttf') format('truetype'),
+             url('{url}/{name}-{version}-{subset}.svg#{name_capitalized}') format('svg');
+    }}
     """
     main_font = blue_print.format(family=characteristics[0].replace('+', ' '),
                                   style='normal',  # TODO: How to determine??
@@ -37,7 +37,8 @@ def __generate_replace_string(characteristics, url):
                                   url=url,
                                   name=characteristics[0].replace('+', '-'),
                                   version='v23',  # TODO: How to determine??
-                                  subset='latin'  # TODO: How to determine??
+                                  subset='latin-regular',  # TODO: How to determine??
+                                  name_capitalized=characteristics[0].replace('+', '')
                                   )
 
     replace_strs = [main_font]
@@ -49,24 +50,33 @@ def __generate_replace_string(characteristics, url):
                                      url=url,
                                      name=font.replace('+', '-'),
                                      version='v23',  # TODO: How to determine??
-                                     subset='latin'  # TODO: How to determine??
+                                     subset='latin-regular',  # TODO: How to determine??
+                                     name_capitalized=font.replace('+', '')
                                      )
         replace_strs.append(font_str)
-    return replace_strs
+    return "\n".join(replace_strs)
 
 
-def replace_google_fonts(content, url):
-    for line in content:
-        if 'fonts.googleapis.com' in line:
-            characteristics = __retrieve_characteristics(line)
-            replace_strings = __generate_replace_string(characteristics, url)
-            # TODO: Replace fonts entry with new entries
-            return [replace_strings]
+def replace_google_fonts(c, url):
+    content = c.copy()
+    matching_indices = [idx for idx, line in enumerate(content) if "fonts.googleapis" in line]
+    if not len(matching_indices):
+        return c
+    replace_strs = "<style>\n"
+    for idx in reversed(matching_indices):
+        characteristics = __retrieve_characteristics(content[idx])
+        replace_str = __generate_replace_string(characteristics, url)
+        del content[idx]
+        replace_strs += replace_str
+        replace_strs += '\n'
+    head_end = [idx for idx, line in enumerate(content) if "</head>" in line][0]
+    content.insert(head_end, replace_strs + '</style>\n')
     return content
 
 
 def write_file(path, content):
-    pass
+    with open(path, 'w') as f:
+        f.writelines(content)
 
 
 def iter_files(path):
