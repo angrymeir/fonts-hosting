@@ -24,11 +24,11 @@ def __generate_replace_string(characteristics, url):
         font_weight: {weight};
         src: url('{url}/{name}-{version}-{subset}.eot');
         src: local(''),
-             url('{url}/{name}-{version}-{subset}.eot?#iefix') format('embedded-opentype'),
-             url('{url}/{name}-{version}-{subset}.woff2') format('woff2'),
-             url('{url}/{name}-{version}-{subset}.woff') format('woff'),
-             url('{url}/{name}-{version}-{subset}.ttf') format('truetype'),
-             url('{url}/{name}-{version}-{subset}.svg#{name_capitalized}') format('svg');
+             url('{url}/{name}-{subset}.eot?#iefix') format('embedded-opentype'),
+             url('{url}/{name}-{subset}.woff2') format('woff2'),
+             url('{url}/{name}-{subset}.woff') format('woff'),
+             url('{url}/{name}-{subset}.ttf') format('truetype'),
+             url('{url}/{name}-{subset}.svg#{name_capitalized}') format('svg');
     }}
     """
     main_font = blue_print.format(family=characteristics[0].replace('+', ' '),
@@ -36,8 +36,7 @@ def __generate_replace_string(characteristics, url):
                                   weight=characteristics[1],
                                   url=url,
                                   name=characteristics[0].replace('+', '-'),
-                                  version='v23',  # TODO: How to determine??
-                                  subset='latin-regular',  # TODO: How to determine??
+                                  subset='latin',
                                   name_capitalized=characteristics[0].replace('+', '')
                                   )
 
@@ -49,8 +48,7 @@ def __generate_replace_string(characteristics, url):
                                      weight=characteristics[1],
                                      url=url,
                                      name=font.replace('+', '-'),
-                                     version='v23',  # TODO: How to determine??
-                                     subset='latin-regular',  # TODO: How to determine??
+                                     subset='latin',
                                      name_capitalized=font.replace('+', '')
                                      )
         replace_strs.append(font_str)
