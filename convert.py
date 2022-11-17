@@ -24,11 +24,11 @@ def __generate_replace_string(characteristics, url):
         font_weight: {weight};
         src: url('{url}/{name}-{version}-{subset}.eot');
         src: local(''),
-             url('{url}/{name}-{subset}.eot?#iefix') format('embedded-opentype'),
-             url('{url}/{name}-{subset}.woff2') format('woff2'),
-             url('{url}/{name}-{subset}.woff') format('woff'),
-             url('{url}/{name}-{subset}.ttf') format('truetype'),
-             url('{url}/{name}-{subset}.svg#{name_capitalized}') format('svg');
+             url('{url}/{name}-{subset}-{variant}.eot?#iefix') format('embedded-opentype'),
+             url('{url}/{name}-{subset}-{variant}.woff2') format('woff2'),
+             url('{url}/{name}-{subset}-{variant}.woff') format('woff'),
+             url('{url}/{name}-{subset}-{variant}.ttf') format('truetype'),
+             url('{url}/{name}-{subset}-{variant}.svg#{name_capitalized}') format('svg');
     }}
     """
     main_font = blue_print.format(family=characteristics[0].replace('+', ' '),
@@ -37,6 +37,7 @@ def __generate_replace_string(characteristics, url):
                                   url=url,
                                   name=characteristics[0].replace('+', '-'),
                                   subset='latin',
+                                  variant='regular',
                                   name_capitalized=characteristics[0].replace('+', '')
                                   )
 
@@ -49,6 +50,7 @@ def __generate_replace_string(characteristics, url):
                                      url=url,
                                      name=font.replace('+', '-'),
                                      subset='latin',
+                                     variant='regular',
                                      name_capitalized=font.replace('+', '')
                                      )
         replace_strs.append(font_str)
