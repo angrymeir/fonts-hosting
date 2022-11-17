@@ -22,7 +22,7 @@ def __generate_replace_string(characteristics, url):
         font-family: {family};
         font-style: {style};
         font_weight: {weight};
-        src: url('{url}/{name}-{version}-{subset}.eot');
+        src: url('{url}/{name}-{subset}-{variant}.eot');
         src: local(''),
              url('{url}/{name}-{subset}-{variant}.eot?#iefix') format('embedded-opentype'),
              url('{url}/{name}-{subset}-{variant}.woff2') format('woff2'),
@@ -35,7 +35,7 @@ def __generate_replace_string(characteristics, url):
                                   style='normal',  # TODO: How to determine??
                                   weight=characteristics[1],
                                   url=url,
-                                  name=characteristics[0].replace('+', '-'),
+                                  name=characteristics[0].replace('+', '-').lower(),
                                   subset='latin',
                                   variant='regular',
                                   name_capitalized=characteristics[0].replace('+', '')
@@ -48,7 +48,7 @@ def __generate_replace_string(characteristics, url):
                                      style='normal',  # TODO: How to determine??
                                      weight=characteristics[1],
                                      url=url,
-                                     name=font.replace('+', '-'),
+                                     name=font.replace('+', '-').lower(),
                                      subset='latin',
                                      variant='regular',
                                      name_capitalized=font.replace('+', '')
@@ -71,6 +71,9 @@ def replace_google_fonts(c, url):
         replace_strs += '\n'
     head_end = [idx for idx, line in enumerate(content) if "</head>" in line][0]
     content.insert(head_end, replace_strs + '</style>\n')
+    preconnect_indices = [idx for idx, line in enumerate(content) if "gstatic" in line]
+    for idx in reversed(preconnect_indices):
+        del content[idx]
     return content
 
 
@@ -79,9 +82,8 @@ def write_file(path, content):
         f.writelines(content)
 
 
-def iter_files(path):
+def iter_files(path, url):
     pathlist = Path(path).glob('**/*.html')
-    url = ""
     for path in pathlist:
         original_content = get_file(path)
         filtered_content = replace_google_fonts(original_content, url)
@@ -91,7 +93,9 @@ def iter_files(path):
 
 
 def main():
-    iter_files('.')
+    url = "example.com"
+    path = "example_path"
+    iter_files(path, url)
 
 
 if __name__ == '__main__':
